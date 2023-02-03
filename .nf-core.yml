@@ -12,6 +12,7 @@ lint:
   - .github/workflows/ci.yml
   - .github/workflows/linting_comment.yml
   - .github/workflows/linting.yml
+  - conf/igenomes.config
   nextflow_config:
   - manifest.name
   - manifest.homePage
