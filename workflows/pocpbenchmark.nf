@@ -38,6 +38,7 @@ if (params.proteins) { dir_proteins = params.proteins + '/*.faa' } else { exit 1
 //
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { SEQKIT_STATS } from '../modules/nf-core/seqkit/stats/main'
+include { DIAMOND_MAKEDB } from '../modules/nf-core/diamond/makedb/main'
 
 
 /*
@@ -67,10 +68,14 @@ workflow POCPBENCHMARK {
     // Collect all the stats for each genome into one tsv
     protein_stats.stats.collectFile(
         name: 'proteins_statistics.tsv', skip: 1, keepHeader: true,  storeDir: params.outdir
-    ) { it[1] // extract the second element as the first is the propagated meta }
+    ) { it[1] } // extract the second element as the first is the propagated meta
 
     ch_versions = ch_versions.mix(SEQKIT_STATS.out.versions.first())
 
+    // Create diamond database
+    ch_diamond_db = DIAMOND_MAKEDB( ch_proteins.map{ it[1] } )
+
+    ch_versions = ch_versions.mix(DIAMOND_MAKEDB.out.versions.first())
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
