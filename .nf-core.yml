@@ -19,3 +19,5 @@ lint:
   - report_comment
   readme:
   - nextflow_badge
+  pipeline_name_conventions: False
+  actions_awsfulltest: False

@@ -1,14 +1,12 @@
 ## Introduction
 
-<!-- TODO nf-core: Write a 1-2 sentence summary of what data the pipeline is for and what it does -->
+**TL;DR**: `ClavelLab/pocpbenchmark` is a bioinformatics best-practice analysis pipeline for Benchmarking proteins alignment tools for improved genus delineation using the Percentage Of Conserved Proteins (POCP).
 
-**ClavelLab/pocpbenchmark** is a bioinformatics best-practice analysis pipeline for Benchmarking proteins alignment tools for improved genus delineation using the Percentage Of Conserved Proteins (POCP).
+Genus delineation can be done using Percentage Of Conserved Proteins (POCP), but the original implementation ([Qin, Q.L et al. (2014). *J Bacteriol*](https://doi.org/10.1128/JB.01688-14)) using BLASTP is slow.
+Here with We benchmark here different tools that should be faster than the BLASTP implementation, but we will first evaluate whether the accurracy of the POCP calculation is not sacrificed in the name of computational performance. We rely on the curated taxonomy and the publicly available genomes of the [Genome Taxonomy Database](https://gtdb.ecogenomic.org/).
 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It uses Docker/Singularity containers making installation trivial and results highly reproducible. The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. Where possible, these processes have been submitted to and installed from [nf-core/modules](https://github.com/nf-core/modules) in order to make them available to all nf-core pipelines, and to everyone within the Nextflow community!
 
-<!-- TODO nf-core: Add full-sized test dataset and amend the paragraph below if applicable -->
-
-On release, automated continuous integration tests run the pipeline on a full-sized dataset on the AWS cloud infrastructure. This ensures that the pipeline runs on AWS, has sensible resource allocation defaults set to run on real-world datasets, and permits the persistent storage of results to benchmark between pipeline releases and other analysis sources.
 
 ## Pipeline summary
 
@@ -16,6 +14,20 @@ On release, automated continuous integration tests run the pipeline on a full-si
 
 1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+
+## Generation of the test dataset
+
+In order to test the workflow during the development, for two different families, we selected three species so that two species belong to the same genus and one belongs to a different genus.
+A toy dataset was generated with the first three proteins sequences of these species using the following command:
+
+```bash
+# Fetch the protein sequences of the GTDB
+curl -JLO https://data.gtdb.ecogenomic.org/releases/release207/207.0/genomic_files_reps/gtdb_proteins_aa_reps_r207.tar.gz
+# Took 1h21 for 40.2G
+tar xvf gtdb_proteins_aa_reps_r207.tar.gz
+# Get the first three proteins
+for i in RS_GCF_000262545.1 RS_GCF_000012825.1 RS_GCF_013009555.1 RS_GCF_001591705.1 RS_GCF_009767945.1 RS_GCF_000376985.1;do head -n 6 /DATA/gtdb/protein_faa_reps/bacteria/${i}_protein.faa > ${i}_protein.faa ; done
+```
 
 ## Quick Start
 
