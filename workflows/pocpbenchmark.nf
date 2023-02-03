@@ -39,7 +39,7 @@ if (params.proteins) { dir_proteins = params.proteins + '/*.faa' } else { exit 1
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { SEQKIT_STATS } from '../modules/nf-core/seqkit/stats/main'
 include { DIAMOND_MAKEDB } from '../modules/nf-core/diamond/makedb/main'
-
+include { BLAST_MAKEBLASTDB } from '../modules/nf-core/blast/makeblastdb/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -74,8 +74,13 @@ workflow POCPBENCHMARK {
 
     // Create diamond database
     ch_diamond_db = DIAMOND_MAKEDB( ch_proteins.map{ it[1] } )
+    ch_diamond_db.db.view()
 
     ch_versions = ch_versions.mix(DIAMOND_MAKEDB.out.versions.first())
+
+    // Create blast database
+    ch_blast_db = BLAST_MAKEBLASTDB( ch_proteins.map{ it[1] } )
+    ch_blast_db.db.view()
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
