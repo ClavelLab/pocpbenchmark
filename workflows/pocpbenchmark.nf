@@ -37,6 +37,8 @@ if (params.proteins) { dir_proteins = params.proteins + '/*.faa' } else { exit 1
 // MODULE: Installed directly from nf-core/modules
 //
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { SEQKIT_STATS } from '../modules/nf-core/seqkit/stats/main'
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -47,6 +49,27 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoft
 workflow POCPBENCHMARK {
 
     ch_versions = Channel.empty()
+
+    Channel
+        .fromPath( dir_proteins )
+        .map {
+            // set up a groovy tuple for compatibility with most nf-core modules
+            // normally the output of fromPairs
+            // see https://nf-co.re/docs/contributing/modules#what-is-the-meta-map
+            [
+                [ 'id': it.baseName.toString().replace("_protein", "") ],
+                [ it ]
+            ]
+        }.set { ch_proteins }
+
+    // Compute the statistics on the protein sequences
+    protein_stats = SEQKIT_STATS( ch_proteins )
+    // Collect all the stats for each genome into one tsv
+    protein_stats.stats.collectFile(
+        name: 'proteins_statistics.tsv', skip: 1, keepHeader: true,  storeDir: params.outdir
+    ) { it[1] // extract the second element as the first is the propagated meta }
+
+    ch_versions = ch_versions.mix(SEQKIT_STATS.out.versions.first())
 
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
