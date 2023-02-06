@@ -37,6 +37,8 @@ if (params.proteins) { dir_proteins = params.proteins + '/*.faa' } else { exit 1
 // MODULE: Installed directly from nf-core/modules
 //
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+
+include { CREATE_COMPARISONS_LIST } from '../modules/local/create_comparisons_list'
 include { SEQKIT_STATS } from '../modules/nf-core/seqkit/stats/main'
 include { DIAMOND_MAKEDB } from '../modules/nf-core/diamond/makedb/main'
 include { BLAST_MAKEBLASTDB } from '../modules/nf-core/blast/makeblastdb/main'
@@ -81,6 +83,10 @@ workflow POCPBENCHMARK {
     // Create blast database
     ch_blast_db = BLAST_MAKEBLASTDB( ch_proteins.map{ it[1] } )
     ch_blast_db.db.view()
+
+//    Channel.fromPath('$baseDir/assets/shortlist-test.csv').set{ ch_shortlist }
+    comp = CREATE_COMPARISONS_LIST('/home/cpauvert/projects/benchmarks/ClavelLab-pocpbenchmark/assets/shortlist-test.csv')
+    comp.csv.view()
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
