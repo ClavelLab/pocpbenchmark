@@ -77,7 +77,14 @@ workflow POCPBENCHMARK {
     // Create diamond database
     ch_diamond_db = DIAMOND_MAKEDB( ch_proteins.map{ it[1] } )
     ch_diamond_db.db.view()
+    // The channel contains only the path to the database file but no meta
+    // so had to create one on the fly
+    ch_diamond_db.db.map {
+         [ it.baseName.toString().replace("_protein.faa", "") , it ]
+    }.set { ch_diamond_db }
 
+    // merge the channels of proteins sequences with the channel of diamond dbs
+    ch_proteins.map{ [it[0].id, it[1]]}.join(ch_diamond_db).view()
     ch_versions = ch_versions.mix(DIAMOND_MAKEDB.out.versions.first())
 
     // Create blast database
