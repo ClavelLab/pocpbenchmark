@@ -41,6 +41,7 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoft
 include { CREATE_COMPARISONS_LIST } from '../modules/local/create_comparisons_list'
 include { SEQKIT_STATS } from '../modules/nf-core/seqkit/stats/main'
 include { DIAMOND_MAKEDB } from '../modules/nf-core/diamond/makedb/main'
+include { DIAMOND_BLASTP } from '../modules/nf-core/diamond/blastp/main'
 include { BLAST_MAKEBLASTDB } from '../modules/nf-core/blast/makeblastdb/main'
 
 /*
@@ -94,6 +95,8 @@ workflow POCPBENCHMARK {
 //    Channel.fromPath('$baseDir/assets/shortlist-test.csv').set{ ch_shortlist }
     comp = CREATE_COMPARISONS_LIST('/home/cpauvert/projects/benchmarks/ClavelLab-pocpbenchmark/assets/shortlist-test.csv')
     comp.csv.view()
+
+    //DIAMOND_BLASTP(meta, fasta, db, out_ext="txt")
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
