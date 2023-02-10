@@ -54,17 +54,17 @@ workflow POCPBENCHMARK {
 
     ch_versions = Channel.empty()
 
-    Channel
+    ch_proteins = Channel
         .fromPath( dir_proteins )
         .map {
             // set up a groovy tuple for compatibility with most nf-core modules
             // normally the output of fromPairs
             // see https://nf-co.re/docs/contributing/modules#what-is-the-meta-map
-            [
+            tuple(
                 [ 'id': it.baseName.toString().replace("_protein", "") ],
                 [ it ]
-            ]
-        }.set { ch_proteins }
+            )
+        }
 
     // Compute the statistics on the protein sequences
     protein_stats = SEQKIT_STATS( ch_proteins )
@@ -77,7 +77,6 @@ workflow POCPBENCHMARK {
 
     // Create diamond database
     ch_diamond_db = DIAMOND_MAKEDB( ch_proteins )
-    ch_diamond_db.db.view()
 
     ch_versions = ch_versions.mix(DIAMOND_MAKEDB.out.versions.first())
 
@@ -88,34 +87,35 @@ workflow POCPBENCHMARK {
 //    Channel.fromPath('$baseDir/assets/shortlist-test.csv').set{ ch_shortlist }
     // Create a channel from the comparisons list that can be sent to the tools
     comp = CREATE_COMPARISONS_LIST('/home/cpauvert/projects/benchmarks/ClavelLab-pocpbenchmark/assets/shortlist-test.csv')
-    comp.csv \
+    ch_q_s = comp.csv \
         | splitCsv(header: true) \
         | map {
             row -> tuple(
-                ['id': [row.Query,row.Subject].sort().join('-') ],
+                 [row.Query,row.Subject].sort().join('-'),
                  row.Query,
                  row.Subject )
-            } | set { ch_q_s }
+            }
+
     // With Query (Q) and Subject/Reference (S)
     // Q-S, Q, S
     // ex: RS01-RS02, RS01, RS02
-
     // Prepare diamond blastp
-    ch_q_s \
-        | map{ tuple(['id':it[1]], it[0], it[2] )}// Q, Q-S, S
-        | join(ch_proteins, failOnMismatch: true)
-        | map{ tuple(['id':it[2]], it[0], it[1], it[3] )}
-        | join(ch_diamond_db.db, failOnMismatch: true)
-        // [[id:RS_GCF_001591705.1], [id:RS_GCF_009767945.1], [id:RS_GCF_009767945.1-RS_GCF_001591705.1], [/home/cpauvert/projects/benchmarks/ClavelLab-pocpbenchmark/assets/proteins/RS_GCF_009767945.1_protein.faa], /home/cpauvert/projects/benchmarks/ClavelLab-pocpbenchmark/work/a6/c4c226c3a9e9d7434aa9745da509c8/RS_GCF_001591705.1_protein.faa.dmnd]
-        // S, Q, Q-S, Q.faa, S.dmnd
+    input_diamond_blastp = ch_q_s \
+        | map{ id, q, s -> tuple(q, id, s )}// Q, Q-S, S
+        | combine(ch_proteins.map{
+            meta, fasta -> tuple(meta.get('id'), fasta.get(0)) // Q, Q.faa
+        }, by: 0)
+        | map{ q, id, s, q_faa -> tuple( s, q, id, q_faa ) }
+        | combine(ch_diamond_db.db.map{
+            meta, diamond -> tuple(meta.get('id'), diamond) // S, S.dmnd
+        }, by: 0) // S, Q, Q-S, Q.faa, S.dmnd
         | multiMap{
-            // from a channel to n named channels
+            // from a unique channel to n named channels
             // needed because diamond's process expects 4 Channels not a 4-tuple
             it ->
-                query_faa: tuple(it[2], it[3].get(0)) // Q-S, Q.faa
+                query_faa: tuple(['id':it[2]], it[3]) // Q-S as meta map, Q.faa
                 subject_db: it[4] // S.dmnd
             }
-        | set { input_diamond_blastp }
 
         ch_blastp = DIAMOND_BLASTP(
             input_diamond_blastp.query_faa,
@@ -126,7 +126,6 @@ workflow POCPBENCHMARK {
             Channel.value("qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore")
         )
         ch_blastp.txt.view()
-
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
