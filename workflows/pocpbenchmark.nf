@@ -27,6 +27,7 @@ if (params.proteins) { dir_proteins = params.proteins + '/*.faa' } else { exit 1
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
+include { BLAST } from '../subworkflows/local/blast'
 include { DIAMOND } from '../subworkflows/local/diamond'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -89,6 +90,9 @@ workflow POCPBENCHMARK {
                  row.Query,
                  row.Subject )
             }
+
+    BLAST( ch_proteins, ch_q_s )
+    ch_versions = ch_versions.mix(BLAST.out.versions)
 
     DIAMOND( ch_proteins, ch_q_s )
     ch_versions = ch_versions.mix(DIAMOND.out.versions)
