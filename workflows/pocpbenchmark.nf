@@ -92,7 +92,7 @@ workflow POCPBENCHMARK {
         | splitCsv(header: true) \
         | map {
             row -> tuple(
-                ['id':row.Query+'-'+row.Subject],//TODO: sort a list
+                ['id': [row.Query,row.Subject].sort().join('-') ],
                  row.Query,
                  row.Subject )
             } | set { ch_q_s }
