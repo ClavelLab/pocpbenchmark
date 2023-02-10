@@ -103,9 +103,9 @@ workflow POCPBENCHMARK {
     // Prepare diamond blastp
     ch_q_s \
         | map{ tuple(['id':it[1]], it[0], it[2] )}// Q, Q-S, S
-        | join(ch_proteins)
+        | join(ch_proteins, failOnMismatch: true)
         | map{ tuple(['id':it[2]], it[0], it[1], it[3] )}
-        | join(ch_diamond_db.db)
+        | join(ch_diamond_db.db, failOnMismatch: true)
         // [[id:RS_GCF_001591705.1], [id:RS_GCF_009767945.1], [id:RS_GCF_009767945.1-RS_GCF_001591705.1], [/home/cpauvert/projects/benchmarks/ClavelLab-pocpbenchmark/assets/proteins/RS_GCF_009767945.1_protein.faa], /home/cpauvert/projects/benchmarks/ClavelLab-pocpbenchmark/work/a6/c4c226c3a9e9d7434aa9745da509c8/RS_GCF_001591705.1_protein.faa.dmnd]
         // S, Q, Q-S, Q.faa, S.dmnd
         | multiMap{
