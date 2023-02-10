@@ -1,4 +1,4 @@
-process BLAST_MAKEBLASTDB {
+process BLAST_BLASTPDB {
     tag "$meta.id"
     label 'process_medium'
 
@@ -9,25 +9,30 @@ process BLAST_MAKEBLASTDB {
 
     input:
     tuple val(meta), path(fasta)
+    path  db
 
     output:
-    tuple val(meta), path('blast_db'), emit: db
-    path "versions.yml", emit: versions
+    tuple val(meta), path('*.blastp.txt'), emit: txt
+    path "versions.yml"                  , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     def args = task.ext.args ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    makeblastdb \\
-        -in $fasta \\
-        $args
-    mkdir blast_db
-    mv ${fasta}* blast_db
+    DB=`find -L ./ -name "*.pdb" | sed 's/\\.pdb\$//'`
+    blastp \\
+        -num_threads $task.cpus \\
+        -db \$DB \\
+        -query $fasta \\
+        -outfmt 6 \\
+        $args \\
+        -out ${prefix}.blastp.txt
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        blast: \$(blastn -version 2>&1 | sed 's/^.*blastn: //; s/ .*\$//')
+        blast: \$(blastp -version 2>&1 | sed 's/^.*blastp: //; s/ .*\$//')
     END_VERSIONS
     """
 }

@@ -42,7 +42,6 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoft
 
 include { CREATE_COMPARISONS_LIST } from '../modules/local/create_comparisons_list'
 include { SEQKIT_STATS } from '../modules/nf-core/seqkit/stats/main'
-include { BLAST_MAKEBLASTDB } from '../modules/nf-core/blast/makeblastdb/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -75,9 +74,6 @@ workflow POCPBENCHMARK {
 
     ch_versions = ch_versions.mix(SEQKIT_STATS.out.versions.first())
 
-    // Create blast database
-    //ch_blast_db = BLAST_MAKEBLASTDB( ch_proteins.map{ it[1] } )
-    //ch_blast_db.db.view()
 
 //    Channel.fromPath('$baseDir/assets/shortlist-test.csv').set{ ch_shortlist }
     // Create a channel from the comparisons list that can be sent to the tools
