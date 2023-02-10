@@ -4,6 +4,7 @@
 
 include { DIAMOND_MAKEDB } from '../../modules/nf-core/diamond/makedb/main'
 include { DIAMOND_BLASTP as DIAMOND_FAST } from '../../modules/nf-core/diamond/blastp/main'
+include { DIAMOND_BLASTP as DIAMOND_SENSITIVE } from '../../modules/nf-core/diamond/blastp/main'
 
 workflow DIAMOND {
     take:
@@ -41,6 +42,9 @@ workflow DIAMOND {
                 subject_db: it[4] // S.dmnd
             }
 
+        /*
+            diamond --fast
+        */
         ch_fast = DIAMOND_FAST(
             input_diamond.query_faa,
             input_diamond.subject_db,
@@ -53,7 +57,23 @@ workflow DIAMOND {
             tuple(meta.get('id') + '-diamond_fast', txt)
         }.set{ ch_diamond_fast }
 
-    ch_matches = ch_matches.mix(ch_diamond_fast)
+        /*
+            diamond --sensitive
+        */
+        ch_sensitive = DIAMOND_SENSITIVE(
+            input_diamond.query_faa,
+            input_diamond.subject_db,
+            // normally the last two channels are optional
+            //  but nextflow complains if not present
+            Channel.value("txt"),
+            Channel.value("qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore")
+        )
+        ch_sensitive.txt.map{ meta, txt ->
+            tuple(meta.get('id') + '-diamond_sensitive', txt)
+        }.set{ ch_diamond_sensitive }
+
+
+    ch_matches = ch_matches.mix(ch_diamond_fast, ch_diamond_sensitive)
 
     ch_versions = ch_versions.mix(DIAMOND_FAST.out.versions.first())
 
