@@ -15,6 +15,11 @@ tools:
     licence: ["GPL v3.0"]
 
 input:
+  - meta:
+      type: map
+      description: >
+        Groovy Map containing sample information
+        e.g. [ id:'test', single_end:false ]
   - fasta:
       type: file
       description: Input fasta file

@@ -1,5 +1,5 @@
 process DIAMOND_MAKEDB {
-    tag "$fasta"
+    tag "$meta.id"
     label 'process_medium'
 
     conda "bioconda::diamond=2.0.15"
@@ -8,10 +8,10 @@ process DIAMOND_MAKEDB {
         'quay.io/biocontainers/diamond:2.0.15--hb97b32f_0' }"
 
     input:
-    path fasta
+    tuple val(meta), path(fasta)
 
     output:
-    path "${fasta}.dmnd", emit: db
+    tuple val(meta), path("${fasta}.dmnd"), emit: db
     path "versions.yml" , emit: versions
 
     when:
