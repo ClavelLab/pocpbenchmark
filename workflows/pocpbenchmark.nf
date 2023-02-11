@@ -92,9 +92,12 @@ workflow POCPBENCHMARK {
 
     DIAMOND( ch_proteins, ch_q_s )
     ch_versions = ch_versions.mix(DIAMOND.out.versions)
-    filt = FILTER_MATCHES( BLAST.out.matches )
-    filt.csv.view()
 
+    filt = FILTER_MATCHES( BLAST.out.matches )
+    ch_versions = ch_versions.mix(FILTER_MATCHES.out.versions)
+    filt.csv.collectFile(
+        name: 'matches.csv', skip: 1, keepHeader: true,  storeDir: params.outdir
+    )
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
