@@ -4,6 +4,7 @@ process POCP {
 
     conda "bioconda::r-tidyverse=1.3.1"
     container "rocker/tidyverse:4.1"
+
     input:
     path proteins
     path matches
