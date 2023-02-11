@@ -45,6 +45,7 @@ include { CREATE_COMPARISONS_LIST } from '../modules/local/create_comparisons_li
 include { SEQKIT_STATS } from '../modules/nf-core/seqkit/stats/main'
 include { FILTER_MATCHES } from '../modules/local/filter_matches'
 include { POCP } from '../modules/local/pocp'
+include { COMPARE_POCP } from '../modules/local/compare_pocp'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -114,6 +115,7 @@ workflow POCPBENCHMARK {
     )
 
     POCP( protein_stats_tsv, matches_csv )
+    COMPARE_POCP( POCP.out.summary )
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
