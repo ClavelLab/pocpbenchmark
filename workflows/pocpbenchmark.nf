@@ -42,7 +42,7 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoft
 
 include { CREATE_COMPARISONS_LIST } from '../modules/local/create_comparisons_list'
 include { SEQKIT_STATS } from '../modules/nf-core/seqkit/stats/main'
-
+include { FILTER_MATCHES } from '../modules/local/filter_matches'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -92,6 +92,8 @@ workflow POCPBENCHMARK {
 
     DIAMOND( ch_proteins, ch_q_s )
     ch_versions = ch_versions.mix(DIAMOND.out.versions)
+    filt = FILTER_MATCHES( BLAST.out.matches )
+    filt.csv.view()
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
