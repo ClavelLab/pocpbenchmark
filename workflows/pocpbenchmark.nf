@@ -95,6 +95,7 @@ workflow POCPBENCHMARK {
     ch_versions = ch_versions.mix(DIAMOND.out.versions)
 
     MMSEQS2( ch_proteins, ch_q_s )
+    MMSEQS2.out.matches.view()
     ch_versions = ch_versions.mix(MMSEQS2.out.versions)
 
     filt = FILTER_MATCHES( BLAST.out.matches )
