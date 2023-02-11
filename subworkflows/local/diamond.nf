@@ -5,6 +5,8 @@
 include { DIAMOND_MAKEDB } from '../../modules/nf-core/diamond/makedb/main'
 include { DIAMOND_BLASTP as DIAMOND_FAST } from '../../modules/nf-core/diamond/blastp/main'
 include { DIAMOND_BLASTP as DIAMOND_SENSITIVE } from '../../modules/nf-core/diamond/blastp/main'
+include { DIAMOND_BLASTP as DIAMOND_VERYSENSITIVE } from '../../modules/nf-core/diamond/blastp/main'
+include { DIAMOND_BLASTP as DIAMOND_ULTRASENSITIVE } from '../../modules/nf-core/diamond/blastp/main'
 
 workflow DIAMOND {
     take:
@@ -73,7 +75,43 @@ workflow DIAMOND {
         }.set{ ch_diamond_sensitive }
 
 
-    ch_matches = ch_matches.mix(ch_diamond_fast, ch_diamond_sensitive)
+        /*
+            diamond --verysensitive
+        */
+        ch_verysensitive = DIAMOND_VERYSENSITIVE(
+            input_diamond.query_faa,
+            input_diamond.subject_db,
+            // normally the last two channels are optional
+            //  but nextflow complains if not present
+            Channel.value("txt"),
+            Channel.value("qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore")
+        )
+        ch_verysensitive.txt.map{ meta, txt ->
+            tuple(meta.get('id') + '-diamond_verysensitive', txt)
+        }.set{ ch_diamond_verysensitive }
+
+
+        /*
+            diamond --ultrasensitive
+        */
+        ch_ultrasensitive = DIAMOND_ULTRASENSITIVE(
+            input_diamond.query_faa,
+            input_diamond.subject_db,
+            // normally the last two channels are optional
+            //  but nextflow complains if not present
+            Channel.value("txt"),
+            Channel.value("qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore")
+        )
+        ch_ultrasensitive.txt.map{ meta, txt ->
+            tuple(meta.get('id') + '-diamond_ultrasensitive', txt)
+        }.set{ ch_diamond_ultrasensitive }
+
+    ch_matches = ch_matches.mix(
+        ch_diamond_fast,
+        ch_diamond_sensitive,
+        ch_diamond_verysensitive,
+        ch_diamond_ultrasensitive
+    )
 
     ch_versions = ch_versions.mix(DIAMOND_FAST.out.versions.first())
 
