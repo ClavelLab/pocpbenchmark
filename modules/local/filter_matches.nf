@@ -53,7 +53,7 @@ process FILTER_MATCHES {
         }
     }
     # Write to csv
-    data.frame(id = "$qst_id", value = n_matches) %>%
+    data.frame(id = "$qst_id", n_matches = n_matches) %>%
         write_csv(paste0("${qst_id}", ".csv"))
 
     # Write versions
