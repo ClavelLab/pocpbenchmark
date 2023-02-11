@@ -44,6 +44,7 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoft
 include { CREATE_COMPARISONS_LIST } from '../modules/local/create_comparisons_list'
 include { SEQKIT_STATS } from '../modules/nf-core/seqkit/stats/main'
 include { FILTER_MATCHES } from '../modules/local/filter_matches'
+include { POCP } from '../modules/local/pocp'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -69,7 +70,7 @@ workflow POCPBENCHMARK {
     // Compute the statistics on the protein sequences
     protein_stats = SEQKIT_STATS( ch_proteins )
     // Collect all the stats for each genome into one tsv
-    protein_stats.stats.collectFile(
+    protein_stats_tsv = protein_stats.stats.collectFile(
         name: 'proteins_statistics.tsv', skip: 1, keepHeader: true,  storeDir: params.outdir
     ) { it[1] } // extract the second element as the first is the propagated meta
 
@@ -97,11 +98,23 @@ workflow POCPBENCHMARK {
     MMSEQS2( ch_proteins, ch_q_s )
     ch_versions = ch_versions.mix(MMSEQS2.out.versions)
 
-    filt = FILTER_MATCHES( BLAST.out.matches )
-    ch_versions = ch_versions.mix(FILTER_MATCHES.out.versions)
-    filt.csv.collectFile(
+    // Gather matches
+    all_matches = Channel.empty()
+    filt = FILTER_MATCHES(
+        all_matches.mix(
+            BLAST.out.matches,
+            DIAMOND.out.matches,
+            MMSEQS2.out.matches,
+        )
+    )
+    ch_versions = ch_versions.mix(FILTER_MATCHES.out.versions.first())
+
+    matches_csv = filt.csv.collectFile(
         name: 'matches.csv', skip: 1, keepHeader: true,  storeDir: params.outdir
     )
+
+    POCP( protein_stats_tsv, matches_csv )
+
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
