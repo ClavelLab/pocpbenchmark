@@ -3,7 +3,10 @@
 //
 
 include { MMSEQS2_CREATEDB } from '../../modules/local/mmseqs2_createdb'
-include { MMSEQS2_SEARCH } from '../../modules/local/mmseqs2_search'
+include { MMSEQS2_SEARCH as MMSEQS2_S1DOT0 } from '../../modules/local/mmseqs2_search'
+include { MMSEQS2_SEARCH as MMSEQS2_S2DOT5 } from '../../modules/local/mmseqs2_search'
+include { MMSEQS2_SEARCH as MMSEQS2_S6DOT0 } from '../../modules/local/mmseqs2_search'
+include { MMSEQS2_SEARCH as MMSEQS2_S7DOT5 } from '../../modules/local/mmseqs2_search'
 
 workflow MMSEQS2 {
     take:
@@ -43,14 +46,57 @@ workflow MMSEQS2 {
                 )
             }
 
-    ch_mmseqs2 = MMSEQS2_SEARCH(
+    /*
+         MMseqs -s 1.0
+    */
+
+    ch_mmseqs2_s1dot0 = MMSEQS2_S1DOT0(
         input_mmseqs2
     )
-    ch_mmseqs2.tsv.map{ meta, tsv ->
+    ch_mmseqs2_s1dot0.tsv.map{ meta, tsv ->
         tuple(meta.get('id') + '-mmseqs2_s1dot0', tsv)
-    }.set{ ch_mmseqs2 }
+    }.set{ ch_mmseqs2_s1dot0 }
 
-    ch_matches = ch_matches.mix(ch_mmseqs2)
+    /*
+         MMseqs -s 2.5
+    */
+
+    ch_mmseqs2_s2dot5 = MMSEQS2_S2DOT5(
+        input_mmseqs2
+    )
+    ch_mmseqs2_s2dot5.tsv.map{ meta, tsv ->
+        tuple(meta.get('id') + '-mmseqs2_s2dot5', tsv)
+    }.set{ ch_mmseqs2_s2dot5 }
+
+    /*
+         MMseqs -s 6.0
+    */
+
+    ch_mmseqs2_s6dot0 = MMSEQS2_S6DOT0(
+        input_mmseqs2
+    )
+    ch_mmseqs2_s6dot0.tsv.map{ meta, tsv ->
+        tuple(meta.get('id') + '-mmseqs2_s6dot0', tsv)
+    }.set{ ch_mmseqs2_s6dot0 }
+
+    /*
+         MMseqs -s 7.5
+    */
+
+    ch_mmseqs2_s7dot5 = MMSEQS2_S7DOT5(
+        input_mmseqs2
+    )
+    ch_mmseqs2_s7dot5.tsv.map{ meta, tsv ->
+        tuple(meta.get('id') + '-mmseqs2_s7dot5', tsv)
+    }.set{ ch_mmseqs2_s7dot5 }
+
+
+    ch_matches = ch_matches.mix(
+        ch_mmseqs2_s1dot0,
+        ch_mmseqs2_s2dot5,
+        ch_mmseqs2_s6dot0,
+        ch_mmseqs2_s7dot5
+    )
 
     ch_versions = ch_versions.mix(MMSEQS2_CREATEDB.out.versions.first())
 
