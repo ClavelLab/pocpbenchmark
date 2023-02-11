@@ -29,6 +29,7 @@ if (params.proteins) { dir_proteins = params.proteins + '/*.faa' } else { exit 1
 //
 include { BLAST } from '../subworkflows/local/blast'
 include { DIAMOND } from '../subworkflows/local/diamond'
+include { MMSEQS2 } from '../subworkflows/local/mmseqs2'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
@@ -92,6 +93,9 @@ workflow POCPBENCHMARK {
 
     DIAMOND( ch_proteins, ch_q_s )
     ch_versions = ch_versions.mix(DIAMOND.out.versions)
+
+    MMSEQS2( ch_proteins, ch_q_s )
+    ch_versions = ch_versions.mix(MMSEQS2.out.versions)
 
     filt = FILTER_MATCHES( BLAST.out.matches )
     ch_versions = ch_versions.mix(FILTER_MATCHES.out.versions)
