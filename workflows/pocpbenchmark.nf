@@ -46,6 +46,7 @@ include { SEQKIT_STATS } from '../modules/nf-core/seqkit/stats/main'
 include { FILTER_MATCHES } from '../modules/local/filter_matches'
 include { POCP } from '../modules/local/pocp'
 include { COMPARE_POCP } from '../modules/local/compare_pocp'
+include { EVAL_GENUS_DELINEATION } from '../modules/local/eval_genus_delineation'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -116,6 +117,7 @@ workflow POCPBENCHMARK {
 
     POCP( protein_stats_tsv, matches_csv )
     COMPARE_POCP( POCP.out.summary )
+    EVAL_GENUS_DELINEATION( POCP.out.summary, '/home/cpauvert/projects/benchmarks/ClavelLab-pocpbenchmark/assets/shortlist-test.csv')
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
