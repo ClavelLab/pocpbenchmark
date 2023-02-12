@@ -39,6 +39,7 @@ include { MMSEQS2 } from '../subworkflows/local/mmseqs2'
 //
 // MODULE: Installed directly from nf-core/modules
 //
+include { EXTRACT } from '../modules/local/extract'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
 include { CREATE_COMPARISONS_LIST } from '../modules/local/create_comparisons_list'
@@ -56,6 +57,19 @@ include { EVAL_GENUS_DELINEATION } from '../modules/local/eval_genus_delineation
 workflow POCPBENCHMARK {
 
     ch_versions = Channel.empty()
+
+    if (params.gtdb_metadata_tsv) {
+        gtdb_metadata = file(params.gtdb_metadata_tsv)
+        if(gtdb_metadata.extension != "tsv") {
+            exit 1, "The specified GTDB metadata file (${gtdb_metadata.name}) is not a tsv file!"
+        }
+        gtdb_metadata = Channel.fromPath(gtdb_metadata, checkIfExists: true)
+    } else {
+        mdata_archive = Channel.fromPath("https://data.gtdb.ecogenomic.org/releases/release207/207.0/bac120_metadata_r207.tar.gz")
+        EXTRACT( mdata_archive )
+        gtdb_metadata = EXTRACT.out.map{ it + "/bac120_metadata_r207.tsv" }
+    }
+    gtdb_metadata.view()
 
     ch_proteins = Channel
         .fromPath( dir_proteins )
