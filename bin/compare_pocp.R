@@ -92,6 +92,7 @@ pocp %>%
 fileConn <- file("versions.yml")
 writeLines(c(
   paste0("${task.process}", ":"),
+  paste("    R:", packageVersion("base"))
   paste("    tidyverse:", packageVersion("tidyverse"))
 ), fileConn)
 close(fileConn)

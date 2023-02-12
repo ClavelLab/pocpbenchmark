@@ -109,7 +109,7 @@ workflow POCPBENCHMARK {
             MMSEQS2.out.matches,
         )
     )
-    ch_versions = ch_versions.mix(FILTER_MATCHES.out.versions.first())
+    ch_versions = ch_versions.mix(FILTER_MATCHES.out.versions)
 
     matches_csv = filt.csv.collectFile(
         name: 'matches.csv', skip: 1, keepHeader: true,  storeDir: params.outdir
@@ -118,6 +118,11 @@ workflow POCPBENCHMARK {
     POCP( protein_stats_tsv, matches_csv )
     COMPARE_POCP( POCP.out.summary )
     EVAL_GENUS_DELINEATION( POCP.out.summary, '/home/cpauvert/projects/benchmarks/ClavelLab-pocpbenchmark/assets/shortlist-test.csv')
+    ch_versions = ch_versions.mix(
+        POCP.out.versions,
+        COMPARE_POCP.out.versions,
+        EVAL_GENUS_DELINEATION.out.versions
+    )
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
