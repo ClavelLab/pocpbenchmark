@@ -11,6 +11,11 @@ WorkflowPocpbenchmark.initialise(params, log)
 
 // Check mandatory parameters
 if (params.proteins) { dir_proteins = params.proteins + '/*.faa' } else { exit 1, 'Directory of proteins FASTA files (*.faa) not specified!' }
+if (params.valid_names_tsv) {
+    valid_names = Channel.fromPath(params.valid_names_tsv)
+} else {
+    exit 1, 'Table of valid bacteria names not specified!'
+}
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -42,6 +47,7 @@ include { MMSEQS2 } from '../subworkflows/local/mmseqs2'
 include { EXTRACT } from '../modules/local/extract'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
+include { CREATE_GENOMES_SHORTLIST } from '../modules/local/create_genomes_shortlist'
 include { CREATE_COMPARISONS_LIST } from '../modules/local/create_comparisons_list'
 include { SEQKIT_STATS } from '../modules/nf-core/seqkit/stats/main'
 include { FILTER_MATCHES } from '../modules/local/filter_matches'
@@ -69,7 +75,8 @@ workflow POCPBENCHMARK {
         EXTRACT( mdata_archive )
         gtdb_metadata = EXTRACT.out.map{ it + "/bac120_metadata_r207.tsv" }
     }
-    gtdb_metadata.view()
+
+    CREATE_GENOMES_SHORTLIST( gtdb_metadata, valid_names )
 
     ch_proteins = Channel
         .fromPath( dir_proteins )
