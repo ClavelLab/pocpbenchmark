@@ -58,4 +58,4 @@ shorlisted_genomes = genus_valid_split_red_reduced_data[genus_valid_split_red_re
 f_details.write( 'Number of representatives genomes with valid names and >10 species in their genus and >1 genera per family: ' + str(len(shorlisted_genomes.index)))
 f_details.close()
 
-shorlisted_genomes.to_csv('shortlisted_genomes.csv') # Output file with final filtered data
+shorlisted_genomes.to_csv('shortlisted_genomes.csv', index = False) # Output file with final filtered data

@@ -76,7 +76,11 @@ workflow POCPBENCHMARK {
         gtdb_metadata = EXTRACT.out.map{ it + "/bac120_metadata_r207.tsv" }
     }
 
-    CREATE_GENOMES_SHORTLIST( gtdb_metadata, valid_names )
+    ch_shortlist = CREATE_GENOMES_SHORTLIST( gtdb_metadata, valid_names )
+    shortlisted_ids = ch_shortlist.csv \
+        | splitCsv(header: true)
+        | map { row -> row.accession }
+    shortlisted_ids.take(10).view()
 
     ch_proteins = Channel
         .fromPath( dir_proteins )
