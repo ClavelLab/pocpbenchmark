@@ -44,7 +44,7 @@ process FILTER_MATCHES {
     if (nrow(df) == 0) {
         n_matches = 0
     } else {
-        if (grepl("mmseqs2", "$matches")) {
+        if (grepl("mmseqs2", "$qst_id")) {
             # MMseqs2 pident is [0-1]
             n_matches = df %>% dplyr::filter(pident > 0.4) %>% nrow()
         } else {
