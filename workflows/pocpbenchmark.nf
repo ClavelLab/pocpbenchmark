@@ -44,6 +44,7 @@ include { MMSEQS2 } from '../subworkflows/local/mmseqs2'
 // MODULE: Installed directly from nf-core/modules
 //
 include { EXTRACT } from '../modules/local/extract'
+include { FILTER_TABLE } from '../modules/local/filter_table'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
 include { CREATE_GENOMES_SHORTLIST } from '../modules/local/create_genomes_shortlist'
@@ -93,7 +94,18 @@ workflow POCPBENCHMARK {
     */
 
     ch_shortlist = CREATE_GENOMES_SHORTLIST( gtdb_metadata, valid_names )
-    shortlisted_ids = ch_shortlist.csv \
+    // Subset of identifiers for testing
+    test_ids = Channel.of(
+            "RS_GCF_000012825.1",
+            "RS_GCF_000262545.1",
+            "RS_GCF_000376985.1",
+            "RS_GCF_001591705.1",
+            "RS_GCF_009767945.1",
+            "RS_GCF_013009555.1"
+        ).collect().map{ it.join('|') }
+    shortlist = FILTER_TABLE ( ch_shortlist.csv, test_ids )
+
+    shortlisted_ids = shortlist \
         | splitCsv(header: true)
         | map { row -> row.accession }
     ch_versions = ch_versions.mix(CREATE_GENOMES_SHORTLIST.out.versions)
@@ -112,7 +124,7 @@ workflow POCPBENCHMARK {
                 [ it.join('/') + "_protein.faa" ] // path to the RS011.faa
             )
         }
-/*
+
     // Compute the statistics on the protein sequences
     protein_stats = SEQKIT_STATS( ch_proteins )
     // Collect all the stats for each genome into one tsv
@@ -122,10 +134,9 @@ workflow POCPBENCHMARK {
 
     ch_versions = ch_versions.mix(SEQKIT_STATS.out.versions.first())
 
-*/
-//    Channel.fromPath('$baseDir/assets/shortlist-test.csv').set{ ch_shortlist }
+
     // Create a channel from the comparisons list that can be sent to the tools
-    comp = CREATE_COMPARISONS_LIST('/home/cpauvert/projects/benchmarks/ClavelLab-pocpbenchmark/assets/shortlist-test.csv')
+    comp = CREATE_COMPARISONS_LIST( shortlist )
     ch_q_s = comp.csv \
         | splitCsv(header: true) \
         | map {
