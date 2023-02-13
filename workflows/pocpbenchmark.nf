@@ -69,8 +69,7 @@ workflow POCPBENCHMARK {
     */
 
     if (params.gtdb_proteins_dir) {
-        gtdb_proteins = path(params.gtdb_proteins_dir)
-        gtdb_proteins = Channel.fromPath(gtdb_proteins, checkIfExists: true)
+        gtdb_proteins = Channel.fromPath(params.gtdb_proteins_dir, checkIfExists: true)
     } else {
         proteins_archive = Channel.fromPath("https://data.gtdb.ecogenomic.org/releases/release207/207.0/genomic_files_reps/gtdb_proteins_aa_reps_r207.tar.gz")
         EXTRACT( proteins_archive )
@@ -113,7 +112,7 @@ workflow POCPBENCHMARK {
                 [ it.join('/') + "_protein.faa" ] // path to the RS011.faa
             )
         }
-    ch_proteins.view()
+/*
     // Compute the statistics on the protein sequences
     protein_stats = SEQKIT_STATS( ch_proteins )
     // Collect all the stats for each genome into one tsv
@@ -123,7 +122,7 @@ workflow POCPBENCHMARK {
 
     ch_versions = ch_versions.mix(SEQKIT_STATS.out.versions.first())
 
-
+*/
 //    Channel.fromPath('$baseDir/assets/shortlist-test.csv').set{ ch_shortlist }
     // Create a channel from the comparisons list that can be sent to the tools
     comp = CREATE_COMPARISONS_LIST('/home/cpauvert/projects/benchmarks/ClavelLab-pocpbenchmark/assets/shortlist-test.csv')
@@ -173,7 +172,7 @@ workflow POCPBENCHMARK {
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
-
+*/
 }
 
 /*
