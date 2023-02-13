@@ -82,6 +82,8 @@ workflow POCPBENCHMARK {
         | map { row -> row.accession }
     shortlisted_ids.take(10).view()
 
+    ch_versions = ch_versions.mix(CREATE_GENOMES_SHORTLIST.out.versions)
+
     ch_proteins = Channel
         .fromPath( dir_proteins )
         .map {
@@ -115,6 +117,7 @@ workflow POCPBENCHMARK {
                  row.Query,
                  row.Subject )
             }
+    ch_versions = ch_versions.mix(CREATE_COMPARISONS_LIST.out.versions)
 
     BLAST( ch_proteins, ch_q_s )
     ch_versions = ch_versions.mix(BLAST.out.versions)
@@ -164,10 +167,6 @@ workflow POCPBENCHMARK {
 workflow.onComplete {
     if (params.email || params.email_on_fail) {
         NfcoreTemplate.email(workflow, params, summary_params, projectDir, log)
-    }
-    NfcoreTemplate.summary(workflow, params, log)
-    if (params.hook_url) {
-        NfcoreTemplate.IM_notification(workflow, params, summary_params, projectDir, log)
     }
 }
 
