@@ -10,7 +10,6 @@ def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 WorkflowPocpbenchmark.initialise(params, log)
 
 // Check mandatory parameters
-if (params.proteins) { dir_proteins = params.proteins + '/*.faa' } else { exit 1, 'Directory of proteins FASTA files (*.faa) not specified!' }
 if (params.valid_names_tsv) {
     valid_names = Channel.fromPath(params.valid_names_tsv)
 } else {
@@ -64,6 +63,20 @@ workflow POCPBENCHMARK {
 
     ch_versions = Channel.empty()
 
+    /*
+        GTDB r207 parameters for metadata and proteomes
+        if no local directory or metadata is provided, they are fetched from GTDB
+    */
+
+    if (params.gtdb_proteins_dir) {
+        gtdb_proteins = path(params.gtdb_proteins_dir)
+        gtdb_proteins = Channel.fromPath(gtdb_proteins, checkIfExists: true)
+    } else {
+        proteins_archive = Channel.fromPath("https://data.gtdb.ecogenomic.org/releases/release207/207.0/genomic_files_reps/gtdb_proteins_aa_reps_r207.tar.gz")
+        EXTRACT( proteins_archive )
+        gtdb_proteins = EXTRACT.out.map{ it + "/protein_faa_reps/bacteria" }
+    }
+
     if (params.gtdb_metadata_tsv) {
         gtdb_metadata = file(params.gtdb_metadata_tsv)
         if(gtdb_metadata.extension != "tsv") {
@@ -76,26 +89,31 @@ workflow POCPBENCHMARK {
         gtdb_metadata = EXTRACT.out.map{ it + "/bac120_metadata_r207.tsv" }
     }
 
+    /*
+        Shortlist the GTDB list with valid names, representatives genomes etc..
+    */
+
     ch_shortlist = CREATE_GENOMES_SHORTLIST( gtdb_metadata, valid_names )
     shortlisted_ids = ch_shortlist.csv \
         | splitCsv(header: true)
         | map { row -> row.accession }
-    shortlisted_ids.take(10).view()
-
     ch_versions = ch_versions.mix(CREATE_GENOMES_SHORTLIST.out.versions)
 
-    ch_proteins = Channel
-        .fromPath( dir_proteins )
-        .map {
+    // Paste together the path to the GTDB proteins files
+    //  and the ids of the shortlisted genomes
+
+    ch_proteins = gtdb_proteins \
+        | combine( shortlisted_ids ) // [ path_dir, RS011 ]
+        | map {
             // set up a groovy tuple for compatibility with most nf-core modules
             // normally the output of fromPairs
             // see https://nf-co.re/docs/contributing/modules#what-is-the-meta-map
             tuple(
-                [ 'id': it.baseName.toString().replace("_protein", "") ],
-                [ it ]
+                [ 'id': it[1] ], // identifier RS011
+                [ it.join('/') + "_protein.faa" ] // path to the RS011.faa
             )
         }
-
+    ch_proteins.view()
     // Compute the statistics on the protein sequences
     protein_stats = SEQKIT_STATS( ch_proteins )
     // Collect all the stats for each genome into one tsv
