@@ -141,7 +141,7 @@ workflow POCPBENCHMARK {
         | splitCsv(header: true) \
         | map {
             row -> tuple(
-                 [row.Query,row.Subject].sort().join('-'),
+                 [row.Query,row.Subject].join('-'),
                  row.Query,
                  row.Subject )
             }
