@@ -173,7 +173,7 @@ workflow POCPBENCHMARK {
 
     POCP( protein_stats_tsv, matches_csv )
     COMPARE_POCP( POCP.out.summary )
-    EVAL_GENUS_DELINEATION( POCP.out.summary, '/home/cpauvert/projects/benchmarks/ClavelLab-pocpbenchmark/assets/shortlist-test.csv')
+    EVAL_GENUS_DELINEATION( POCP.out.summary, shortlist )
     ch_versions = ch_versions.mix(
         POCP.out.versions,
         COMPARE_POCP.out.versions,
@@ -183,7 +183,6 @@ workflow POCPBENCHMARK {
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
-*/
 }
 
 /*
