@@ -72,7 +72,7 @@ comparisons %>%
   # comparison_id is an identifier (query-subject) for (query-subject *and* subject-query)
   group_by(tool, comparison_id) %>%
   # Compute POCP
-  transmute(pocp = 100 * (sum(n_matches) / sum(query_proteins, subject_proteins))) %>%
+  transmute(pocp = 100 * (sum(n_matches) / sum(query_proteins))) %>%
   # Remove redundant rows, keep only one for two comparisons
   unique() %>%
   ungroup() %>%
