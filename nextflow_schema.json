@@ -1,5 +1,5 @@
 {
-        "$schema": "http://json-schema.org/draft-07/schema",
+    "$schema": "http://json-schema.org/draft-07/schema",
     "$id": "https://raw.githubusercontent.com/ClavelLab/pocpbenchmark/master/nextflow_schema.json",
     "title": "ClavelLab/pocpbenchmark pipeline parameters",
     "description": "Benchmarking proteins alignment tools for improved genus delineation using the Percentage Of Conserved Proteins (POCP)",
@@ -10,23 +10,27 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": [
-                "proteins",
-                "outdir"
-            ],
+            "required": ["outdir"],
             "properties": {
-                "proteins": {
-                    "type": "string",
-                    "default": "assets/proteins/",
-                    "format": "directory-path",
-                    "description": "Directory of proteins sequences in the FASTA format (.faa)",
-                    "fa_icon": "fas fa-folder-open"
-                },
                 "outdir": {
                     "type": "string",
                     "format": "directory-path",
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
+                },
+                "gtdb_proteins_dir": {
+                    "type": "string",
+                    "default": "null",
+                    "description": "Directory to the proteins sequences files of the Genome Taxonomy DataBase. If left 'null', the proteins sequences will be downloaded from the GTDB website."
+                },
+                "gtdb_metadata_tsv": {
+                    "type": "string",
+                    "default": null
+                },
+                "valid_names_tsv": {
+                    "type": "string",
+                    "default": "https://raw.githubusercontent.com/thh32/Protologger/master/DSMZ-latest.tab",
+                    "description": "Path to a tab-separated two-column file indicated the list of valid genus and species names from the List of Prokaryotic names with Standing in Nomenclature."
                 },
                 "email": {
                     "type": "string",
@@ -145,14 +149,7 @@
                     "description": "Method used to save pipeline results to output directory.",
                     "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
                     "fa_icon": "fas fa-copy",
-                    "enum": [
-                        "symlink",
-                        "rellink",
-                        "link",
-                        "copy",
-                        "copyNoFollow",
-                        "move"
-                    ],
+                    "enum": ["symlink", "rellink", "link", "copy", "copyNoFollow", "move"],
                     "hidden": true
                 },
                 "email_on_fail": {
@@ -169,14 +166,6 @@
                     "fa_icon": "fas fa-remove-format",
                     "hidden": true
                 },
-                "max_multiqc_email_size": {
-                    "type": "string",
-                    "description": "File size limit when attaching MultiQC reports to summary emails.",
-                    "pattern": "^\\d+(\\.\\d+)?\\.?\\s*(K|M|G|T)?B$",
-                    "default": "25.MB",
-                    "fa_icon": "fas fa-file-upload",
-                    "hidden": true
-                },
                 "monochrome_logs": {
                     "type": "boolean",
                     "description": "Do not use coloured log outputs.",
@@ -189,23 +178,6 @@
                     "fa_icon": "fas fa-people-group",
                     "help_text": "Incoming hook URL for messaging service. Currently, MS Teams and Slack are supported.",
                     "hidden": true
-                },
-                "multiqc_config": {
-                    "type": "string",
-                    "description": "Custom config file to supply to MultiQC.",
-                    "fa_icon": "fas fa-cog",
-                    "hidden": true
-                },
-                "multiqc_logo": {
-                    "type": "string",
-                    "description": "Custom logo file to supply to MultiQC. File name must also be set in the MultiQC config file",
-                    "fa_icon": "fas fa-image",
-                    "hidden": true
-                },
-                "multiqc_methods_description": {
-                    "type": "string",
-                    "description": "Custom MultiQC yaml file containing HTML including a methods description.",
-                    "fa_icon": "fas fa-cog"
                 },
                 "tracedir": {
                     "type": "string",
