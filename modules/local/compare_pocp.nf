@@ -19,5 +19,7 @@ process COMPARE_POCP {
     script: // This script is bundled with the pipeline, in ClavelLab/pocp-benchmark-nf/bin/
     """
     compare_pocp.R pocp.csv
+    # R could not know the task process name
+    sed -i 's/SED_CHANGE_ME_PLEASE/${task.process}/' versions.yml
     """
 }

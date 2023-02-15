@@ -19,5 +19,7 @@ process EVAL_GENUS_DELINEATION {
     script: // This script is bundled with the pipeline, in ClavelLab/pocp-benchmark-nf/bin/
     """
     eval_genus_delineation.R pocp.csv shortlist.csv
+    # R could not know the task process name
+    sed -i 's/SED_CHANGE_ME_PLEASE/${task.process}/' versions.yml
     """
 }

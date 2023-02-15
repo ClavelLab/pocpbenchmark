@@ -20,5 +20,7 @@ process POCP {
     script: // This script is bundled with the pipeline, in ClavelLab/pocp-benchmark-nf/bin/
     """
     compute_pocp.R $proteins $matches
+    # R could not know the task process name
+    sed -i 's/SED_CHANGE_ME_PLEASE/${task.process}/' versions.yml
     """
 }

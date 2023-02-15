@@ -133,7 +133,7 @@ pocp_regression(df_pocpu, pocpu, "POCPu")
 # src: https://stackoverflow.com/a/2470277
 fileConn <- file("versions.yml")
 writeLines(c(
-  paste0("${task.process}", ":"),
+  paste0("SED_CHANGE_ME_PLEASE", ":"),
   paste("    R:", packageVersion("base")),
   paste("    tidyverse:", packageVersion("tidyverse"))
 ), fileConn)
