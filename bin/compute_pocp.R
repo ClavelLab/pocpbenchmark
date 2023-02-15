@@ -75,7 +75,7 @@ comparisons %>%
   # Compute POCP
   transmute(
     pocp = 100 * (sum(n_matches) / sum(query_proteins)),
-    pocp_u = 100 * (sum(n_unique_matches) / sum(query_proteins)),
+    pocpu = 100 * (sum(n_unique_matches) / sum(query_proteins)),
     ) %>%
   # Remove redundant rows, keep only one for two comparisons
   unique() %>%
