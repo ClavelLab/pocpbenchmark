@@ -94,6 +94,7 @@ workflow POCPBENCHMARK {
     */
 
     ch_shortlist = CREATE_GENOMES_SHORTLIST( gtdb_metadata, valid_names )
+/*
     // Subset of identifiers for testing
     test_ids = Channel.of(
             "RS_GCF_000012825.1",
@@ -104,7 +105,8 @@ workflow POCPBENCHMARK {
             "RS_GCF_013009555.1"
         ).collect().map{ it.join('|') }
     shortlist = FILTER_TABLE ( ch_shortlist.csv, test_ids )
-
+*/
+    shortlist = ch_shortlist.csv
     shortlisted_ids = shortlist \
         | splitCsv(header: true)
         | map { row -> row.accession }
