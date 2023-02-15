@@ -45,7 +45,8 @@ total_proteins <- setNames(protein_stats[["num_seqs"]], protein_stats[["file"]])
 comparisons <- read_csv(args[2],
   col_types = cols(
     id = col_character(),
-    n_matches = col_double()
+    n_matches = col_double(),
+    n_unique_matches = col_double()
   )
 ) %>%
   # Split the id to extract the relevant identifiers: query, subject and tool
@@ -72,7 +73,10 @@ comparisons %>%
   # comparison_id is an identifier (query-subject) for (query-subject *and* subject-query)
   group_by(tool, comparison_id) %>%
   # Compute POCP
-  transmute(pocp = 100 * (sum(n_matches) / sum(query_proteins))) %>%
+  transmute(
+    pocp = 100 * (sum(n_matches) / sum(query_proteins)),
+    pocp_u = 100 * (sum(n_unique_matches) / sum(query_proteins)),
+    ) %>%
   # Remove redundant rows, keep only one for two comparisons
   unique() %>%
   ungroup() %>%

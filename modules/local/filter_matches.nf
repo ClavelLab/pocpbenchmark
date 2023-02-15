@@ -46,14 +46,20 @@ process FILTER_MATCHES {
     } else {
         if (grepl("mmseqs2", "$qst_id")) {
             # MMseqs2 pident is [0-1]
-            n_matches = df %>% dplyr::filter(pident > 0.4) %>% nrow()
+            n_matches = df %>% dplyr::filter(pident > 0.4)
         } else {
             # blast/diamond pident is [0-100]
-            n_matches = df %>% dplyr::filter(pident > 40) %>% nrow()
+            n_matches = df %>% dplyr::filter(pident > 40)
         }
     }
     # Write to csv
-    data.frame(id = "$qst_id", n_matches = n_matches) %>%
+    data.frame(
+        id = "$qst_id",
+        # Count all matches (with paralogs for instance)
+        n_matches = n_matches %>% nrow(),
+        # Count only unique matches
+        n_unique_matches = n_matches %>% summarise(n=n_distinct(qseqid)) %>% pull(n)
+    ) %>%
         write_csv(paste0("${qst_id}", ".csv"))
 
     # Write versions
