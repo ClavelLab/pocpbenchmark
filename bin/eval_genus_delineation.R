@@ -7,8 +7,17 @@
 #  for each comparison based on the taxonomy of the GTDB
 
 library(tidyverse)
-# Read the POCP values and split the comparison identifier into query subject
-pocp <- read_csv("pocp.csv") %>%
+# Read the POCP values, pivot to include the two types: POCP POCPu
+#  and split the comparison identifier into query subject
+pocp <- read_csv("pocp.csv",
+           col_types = cols(
+             tool = col_character(),
+             comparison_id = col_character(),
+             pocp = col_double(),
+             pocpu = col_double()
+           )) %>%
+  rename(c("POCP"="pocp", "POCPu"="pocpu")) %>%
+  pivot_longer(cols = c(POCP, POCPu), names_to = "type", values_to = "pocp") %>%
   separate(comparison_id, into = c("query", "subject"), sep = "-")
 
 # Read the taxonomy
@@ -90,28 +99,28 @@ classification_rand <- classification %>% label_confusion_matrix(same_genus_rand
 # Annotate all comparisons with TP, FP, FN, TN
 classification_annotated <- classification_pocp %>%
   left_join(classification_rand %>%
-    select(tool, query, subject, class),
-  by = c("tool", "query", "subject"), suffix = c("", "_random")
+    select(type, tool, query, subject, class),
+  by = c("type", "tool", "query", "subject"), suffix = c("", "_random")
   ) %>%
   relocate(
-    tool, query, subject, pocp, query_genus, query_gtdb_taxonomy, subject_genus,
+    type, tool, query, subject, pocp, query_genus, query_gtdb_taxonomy, subject_genus,
     subject_gtdb_taxonomy, same_genus_truth, same_genus, class, same_genus_random, class_random
   ) # %>%
 write_csv(classification_annotated, "comparisons_classification_pocp_rand.csv")
 
 # Compute classical classifications metrics
 classification_pocp %>%
-  group_by(tool) %>%
+  group_by(type, tool) %>%
   nest() %>%
   mutate(metrics = map(data, get_classification_metrics)) %>%
   unnest(metrics) %>%
   ungroup() %>%
   select(-data) %>%
-  left_join(classification_rand %>% group_by(tool) %>% nest() %>%
+  left_join(classification_rand %>% group_by(type, tool) %>% nest() %>%
     mutate(metrics = map(data, get_classification_metrics)) %>%
-    unnest(metrics) %>% ungroup() %>% select(-data), by = "tool", suffix = c("", "_random")) %>%
+    unnest(metrics) %>% ungroup() %>% select(-data), by = c("type", "tool"), suffix = c("", "_random")) %>%
   relocate(
-    tool, Sensitivity, Sensitivity_random,
+    type, tool, Sensitivity, Sensitivity_random,
     Specificity, Specificity_random,
     FDR, FDR_random
   ) %>%
@@ -119,17 +128,17 @@ classification_pocp %>%
 
 # Detail the counts of TP, FP, FN, TN
 classification_pocp %>%
-  group_by(tool) %>%
+  group_by(type, tool) %>%
   nest() %>%
   mutate(desc = map(data, describe_count_confusion_matrix)) %>%
   unnest(desc) %>%
   select(-data) %>%
-  left_join(classification_rand %>% group_by(tool) %>%
+  left_join(classification_rand %>% group_by(type, tool) %>%
     nest() %>%
     mutate(desc = map(data, describe_count_confusion_matrix)) %>%
     unnest(desc) %>%
-    select(-data, -description), by = c("tool", "class"), suffix = c("", "_random")) %>%
-  relocate(tool, class, description, n, n_random) %>%
+    select(-data, -description), by = c("type", "tool", "class"), suffix = c("", "_random")) %>%
+  relocate(type, tool, class, description, n, n_random) %>%
   write_csv(., "counts-evaluate_genus_delineation.csv")
 
 # Write versions
