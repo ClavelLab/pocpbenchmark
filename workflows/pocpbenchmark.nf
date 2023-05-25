@@ -72,7 +72,7 @@ workflow POCPBENCHMARK {
     if (params.gtdb_proteins_dir) {
         gtdb_proteins = Channel.fromPath(params.gtdb_proteins_dir, checkIfExists: true)
     } else {
-        proteins_archive = Channel.fromPath("https://data.gtdb.ecogenomic.org/releases/release207/207.0/genomic_files_reps/gtdb_proteins_aa_reps_r207.tar.gz")
+        proteins_archive = Channel.fromPath("https://data.gtdb.ecogenomic.org/releases/release214/214.0/genomic_files_reps/gtdb_proteins_aa_reps_r214.tar.gz")
         EXTRACT( proteins_archive )
         gtdb_proteins = EXTRACT.out.map{ it + "/protein_faa_reps/bacteria" }
     }
@@ -84,9 +84,9 @@ workflow POCPBENCHMARK {
         }
         gtdb_metadata = Channel.fromPath(gtdb_metadata, checkIfExists: true)
     } else {
-        mdata_archive = Channel.fromPath("https://data.gtdb.ecogenomic.org/releases/release207/207.0/bac120_metadata_r207.tar.gz")
+        mdata_archive = Channel.fromPath("https://data.gtdb.ecogenomic.org/releases/release214/214.0/bac120_metadata_r214.tar.gz")
         EXTRACT( mdata_archive )
-        gtdb_metadata = EXTRACT.out.map{ it + "/bac120_metadata_r207.tsv" }
+        gtdb_metadata = EXTRACT.out.map{ it + "/bac120_metadata_r214.tsv" }
     }
 
     /*

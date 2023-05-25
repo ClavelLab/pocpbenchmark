@@ -27,9 +27,9 @@ A toy dataset was generated with the first three proteins sequences of these spe
 
 ```bash
 # Fetch the protein sequences of the GTDB
-curl -JLO https://data.gtdb.ecogenomic.org/releases/release207/207.0/genomic_files_reps/gtdb_proteins_aa_reps_r207.tar.gz
+curl -JLO https://data.gtdb.ecogenomic.org/releases/release214/214.0/genomic_files_reps/gtdb_proteins_aa_reps_r214.tar.gz
 # Took 1h21 for 40.2G
-tar xvf gtdb_proteins_aa_reps_r207.tar.gz
+tar xvf gtdb_proteins_aa_reps_r214.tar.gz
 # Get the first three proteins
 for i in RS_GCF_000262545.1 RS_GCF_000012825.1 RS_GCF_013009555.1 RS_GCF_001591705.1 RS_GCF_009767945.1 RS_GCF_000376985.1;do head -n 6 /DATA/gtdb/protein_faa_reps/bacteria/${i}_protein.faa > ${i}_protein.faa ; done
 ```
