@@ -116,7 +116,7 @@ workflow POCPBENCHMARK {
     // Paste together the path to the GTDB proteins files
     //  and the ids of the shortlisted genomes
 
-    ch_proteins = gtdb_proteins \
+    ch_gzipped_proteins = gtdb_proteins \
         | combine( shortlisted_ids ) // [ path_dir, RS011 ]
         | map {
             // set up a groovy tuple for compatibility with most nf-core modules
@@ -124,12 +124,15 @@ workflow POCPBENCHMARK {
             // see https://nf-co.re/docs/contributing/modules#what-is-the-meta-map
             tuple(
                 [ 'id': it[1] ], // identifier RS011
-                [ it.join('/') + "_protein.faa" ] // path to the RS011.faa
+                [ it.join('/') + "_protein.faa.gz" ] // path to the RS011.faa.gz
             )
         }
 
+    ch_proteins = TABIX_BGZIP( ch_gzipped_proteins )
+    ch_versions = ch_versions.mix(TABIX_BGZIP.versions.first())
+
     // Compute the statistics on the protein sequences
-    protein_stats = SEQKIT_STATS( ch_proteins )
+    protein_stats = SEQKIT_STATS( ch_proteins.output )
     // Collect all the stats for each genome into one tsv
     protein_stats_tsv = protein_stats.stats.collectFile(
         name: 'proteins_statistics.tsv', skip: 1, keepHeader: true,  storeDir: params.outdir
@@ -150,13 +153,13 @@ workflow POCPBENCHMARK {
             }
     ch_versions = ch_versions.mix(CREATE_COMPARISONS_LIST.out.versions)
 
-    BLAST( ch_proteins, ch_q_s )
+    BLAST( ch_proteins.output, ch_q_s )
     ch_versions = ch_versions.mix(BLAST.out.versions)
 
-    DIAMOND( ch_proteins, ch_q_s )
+    DIAMOND( ch_proteins.output, ch_q_s )
     ch_versions = ch_versions.mix(DIAMOND.out.versions)
 
-    MMSEQS2( ch_proteins, ch_q_s )
+    MMSEQS2( ch_proteins.output, ch_q_s )
     ch_versions = ch_versions.mix(MMSEQS2.out.versions)
 
     // Gather matches
