@@ -30,7 +30,7 @@ workflow DIAMOND {
     input_diamond = ch_pairs \
         | map{ id, q, s -> tuple(q, id, s )}// Q, Q-S, S
         | combine(ch_faa.map{
-            meta, fasta -> tuple(meta.get('id'), fasta.get(0)) // Q, Q.faa
+            meta, fasta -> tuple(meta['id'], fasta) // Q, Q.faa
         }, by: 0)
         | map{ q, id, s, q_faa -> tuple( s, q, id, q_faa ) }
         | combine(ch_diamond_db.db.map{
