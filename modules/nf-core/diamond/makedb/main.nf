@@ -2,10 +2,10 @@ process DIAMOND_MAKEDB {
     tag "$meta.id"
     label 'process_medium'
 
-    conda "bioconda::diamond=2.0.15"
+    conda "bioconda::diamond=2.1.6"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/diamond:2.0.15--hb97b32f_0' :
-        'quay.io/biocontainers/diamond:2.0.15--hb97b32f_0' }"
+        'https://depot.galaxyproject.org/singularity/diamond:2.1.6--h43eeafb_2' :
+        'quay.io/biocontainers/diamond:2.1.6--h43eeafb_2' }"
 
     input:
     tuple val(meta), path(fasta)
