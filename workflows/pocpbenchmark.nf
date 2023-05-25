@@ -129,7 +129,7 @@ workflow POCPBENCHMARK {
         }
 
     ch_proteins = TABIX_BGZIP( ch_gzipped_proteins )
-    ch_versions = ch_versions.mix(TABIX_BGZIP.versions.first())
+    ch_versions = ch_versions.mix(TABIX_BGZIP.out.versions.first())
 
     // Compute the statistics on the protein sequences
     protein_stats = SEQKIT_STATS( ch_proteins.output )
