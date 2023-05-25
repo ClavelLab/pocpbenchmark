@@ -45,6 +45,7 @@ include { MMSEQS2 } from '../subworkflows/local/mmseqs2'
 //
 include { EXTRACT } from '../modules/local/extract'
 include { FILTER_TABLE } from '../modules/local/filter_table'
+include { TABIX_BGZIP } from '../modules/nf-core/tabix/bgzip/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
 include { CREATE_GENOMES_SHORTLIST } from '../modules/local/create_genomes_shortlist'
