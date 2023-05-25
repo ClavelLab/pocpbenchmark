@@ -35,7 +35,7 @@ protein_stats <- read_table(args[1],
   )
 ) %>%
   select(file, num_seqs) %>%
-  mutate(file = str_replace(file, "_protein.faa", ""))
+  mutate(file = str_replace(file, ".faa", ""))
 # Format into a named list of total protein number per genome
 total_proteins <- setNames(protein_stats[["num_seqs"]], protein_stats[["file"]])
 
