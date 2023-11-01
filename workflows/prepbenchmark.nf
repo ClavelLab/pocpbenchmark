@@ -88,7 +88,7 @@ workflow PREPBENCHMARK {
             params.outdir + "-" + \
             // withOUT .csv
             it.getSimpleName() + \
-            "--family_shortlist " + \
+            " --family_shortlist " + \
             params.outdir + "/split_per_family/" + \
             // with .csv
             it.getName()
