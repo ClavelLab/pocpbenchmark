@@ -1,6 +1,12 @@
 // Check mandatory parameters
 if (params.family_shortlist) {
-    shortlist = Channel.fromPath(params.family_shortlist)
+    if(params.family_shortlist != "not_appropriate") {
+        shortlist = Channel.fromPath(params.family_shortlist)
+    } else if (workflow.commandLine =~ /PREPBENCHMARK/) {
+        println "MESSAGE: Running the preparatory workflow"
+    } else {
+        exit 1, 'Run the preparatory workflow first!'
+    }
 } else {
     exit 1, 'Per-family shortlist not specified!'
 }
