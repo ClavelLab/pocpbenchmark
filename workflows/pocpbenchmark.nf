@@ -1,3 +1,9 @@
+// Check mandatory parameters
+if (params.family_shortlist) {
+    shortlist = Channel.fromPath(params.family_shortlist)
+} else {
+    exit 1, 'Per-family shortlist not specified!'
+}
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     CONFIG FILES
@@ -56,7 +62,8 @@ workflow POCPBENCHMARK {
         gtdb_proteins = EXTRACT.out.map{ it + "/protein_faa_reps/bacteria" }
     }
 
-    shortlist = ch_shortlist.csv
+    // Shortlist is obtained per-family via CLI arguments
+    // --family_shortlist f__Bacteroidaceae.csv
     shortlisted_ids = shortlist \
         | splitCsv(header: true)
         | map { row -> row.accession }
