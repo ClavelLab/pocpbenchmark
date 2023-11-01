@@ -23,12 +23,14 @@ WorkflowMain.initialise(workflow, params, log)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+include { PREPBENCHMARK } from './workflows/prepbenchmark'
 include { POCPBENCHMARK } from './workflows/pocpbenchmark'
 
 //
 // WORKFLOW: Run main ClavelLab/pocpbenchmark analysis pipeline
 //
 workflow CLAVELLAB_POCPBENCHMARK {
+    PREPBENCHMARK ()
     POCPBENCHMARK ()
 }
 
