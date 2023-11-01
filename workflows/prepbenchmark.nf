@@ -86,10 +86,12 @@ workflow PREPBENCHMARK {
             "-profile winogradsky,docker " + \
             "--outdir " + \
             params.outdir + "-" + \
+            // withOUT .csv
             it.getSimpleName() + \
             "--family_shortlist " + \
             params.outdir + "/split_per_family/" + \
-            it.getSimpleName()
+            // with .csv
+            it.getName()
         }
         | collectFile(
             name: 'families_to_run.txt',
