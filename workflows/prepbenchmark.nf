@@ -3,7 +3,6 @@
     VALIDATE INPUTS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-
 def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 
 // Validate input parameters
@@ -79,6 +78,26 @@ workflow PREPBENCHMARK {
     shortlist = FILTER_TABLE ( ch_shortlist.csv, test_ids )
 */
     family_shortlist = SPLIT_PER_FAMILY(ch_shortlist.csv)
+
+    family_shortlist.csv
+        | flatten // to avoid ArrayList Error
+        | map {
+            "nextflow run main.nf -entry POCPBENCHMARK " + \
+            "-profile winogradsky,docker " + \
+            "--outdir " + \
+            params.outdir + "-" + \
+            it.getSimpleName() + \
+            "--family_shortlist " + \
+            params.outdir + "/split_per_family/" + \
+            it.getSimpleName()
+        }
+        | collectFile(
+            name: 'families_to_run.txt',
+            newLine: true, storeDir: params.outdir
+        )
+
+    println "\n\nRun per-family comparisons commands"
+    println "from ${params.outdir}/families_to_run.txt"
 
     ch_versions = ch_versions.mix(CREATE_GENOMES_SHORTLIST.out.versions)
     ch_versions = ch_versions.mix(SPLIT_PER_FAMILY.out.versions)
