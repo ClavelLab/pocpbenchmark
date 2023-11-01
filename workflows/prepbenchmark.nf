@@ -32,7 +32,7 @@ include { TABIX_BGZIP } from '../modules/nf-core/tabix/bgzip/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
 include { CREATE_GENOMES_SHORTLIST } from '../modules/local/create_genomes_shortlist'
-include { CREATE_COMPARISONS_LIST } from '../modules/local/create_comparisons_list'
+include { SPLIT_PER_FAMILY } from '../modules/local/split_per_family'
 /*
 
 /*

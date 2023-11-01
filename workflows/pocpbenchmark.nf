@@ -27,6 +27,7 @@ include { MMSEQS2 } from '../subworkflows/local/mmseqs2'
 //
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
+include { CREATE_COMPARISONS_LIST } from '../modules/local/create_comparisons_list'
 include { SEQKIT_STATS } from '../modules/nf-core/seqkit/stats/main'
 include { FILTER_MATCHES } from '../modules/local/filter_matches'
 include { POCP } from '../modules/local/pocp'
