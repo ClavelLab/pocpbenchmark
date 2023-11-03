@@ -2,10 +2,10 @@ process MMSEQS2_CREATEDB {
     tag "$meta.id"
     label 'process_medium'
 
-    conda "bioconda::mmseqs2=14.7e284"
+    conda "bioconda::mmseqs2=15.6f452"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/mmseqs2:14.7e284--pl5321hf1761c0_0' :
-        'quay.io/biocontainers/mmseqs2:14.7e284--pl5321hf1761c0_0' }"
+        'https://depot.galaxyproject.org/singularity/mmseqs2:15.6f452--pl5321h6a68c12_0' :
+        'quay.io/biocontainers/mmseqs2:15.6f452--pl5321h6a68c12_0' }"
 
     input:
     tuple val(meta), path(fasta)
