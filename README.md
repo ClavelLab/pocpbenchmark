@@ -7,6 +7,10 @@ Here we benchmark here different tools that should be faster than the BLASTP imp
 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It uses Docker/Singularity containers making installation trivial and results highly reproducible. The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. Where possible, these processes have been submitted to and installed from [nf-core/modules](https://github.com/nf-core/modules) in order to make them available to all nf-core pipelines, and to everyone within the Nextflow community!
 
+A preprint of our work is available at bioRxiv: 
+> Robust genome-based delineation of bacterial genera.
+> Charlie Pauvert, Thomas C.A. Hitch, Thomas Clavel.
+> bioRxiv 2025.03.17.643616; doi: https://doi.org/10.1101/2025.03.17.643616 
 
 ## Pipeline summary
 
